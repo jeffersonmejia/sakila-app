@@ -1,6 +1,7 @@
 package com.sakila.app.sakila.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -14,36 +15,59 @@ public class Film {
     private Integer filmId;
 
     @Column(name = "title", nullable = false, length = 128)
+    @NotBlank
+    @Size(min = 1, max = 128)
+    @Pattern(regexp = "^[\\p{L}0-9\\s.,:;!?()'\"-]+$")
     private String title;
 
     @Column(name = "description", columnDefinition = "text")
+    @Size(max = 1000)
+    @Pattern(regexp = "^[\\p{L}0-9\\s.,:;!?()'\"-]*$")
     private String description;
 
     @Column(name = "release_year")
+    @Min(1900)
+    @Max(2100)
     private Integer releaseYear;
 
     @Column(name = "language_id", nullable = false)
+    @NotNull
+    @Positive
     private Integer languageId;
 
     @Column(name = "original_language_id")
+    @Positive
     private Integer originalLanguageId;
 
     @Column(name = "rental_duration", nullable = false)
+    @NotNull
+    @Min(1)
+    @Max(365)
     private Integer rentalDuration;
 
     @Column(name = "rental_rate", nullable = false)
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = false)
+    @Digits(integer = 5, fraction = 2)
     private BigDecimal rentalRate;
 
     @Column(name = "length")
+    @Min(0)
+    @Max(10000)
     private Integer length;
 
     @Column(name = "replacement_cost", nullable = false)
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = false)
+    @Digits(integer = 6, fraction = 2)
     private BigDecimal replacementCost;
 
     @Column(name = "rating")
     private Rating rating;
 
     @Column(name = "special_features")
+    @Size(max = 255)
+    @Pattern(regexp = "^[\\p{L}0-9\\s,.-]*$")
     private String specialFeatures;
 
     @Column(name = "last_update")
@@ -62,19 +86,19 @@ public class Film {
     }
 
     public String getTitle() {
-        return title;
+        return title == null ? null : title.trim();
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        this.title = title == null ? null : title.trim();
     }
 
     public String getDescription() {
-        return description;
+        return description == null ? null : description.trim();
     }
 
     public void setDescription(String description) {
-        this.description = description;
+        this.description = description == null ? null : description.trim();
     }
 
     public Integer getReleaseYear() {
@@ -142,11 +166,11 @@ public class Film {
     }
 
     public String getSpecialFeatures() {
-        return specialFeatures;
+        return specialFeatures == null ? null : specialFeatures.trim();
     }
 
     public void setSpecialFeatures(String specialFeatures) {
-        this.specialFeatures = specialFeatures;
+        this.specialFeatures = specialFeatures == null ? null : specialFeatures.trim();
     }
 
     public LocalDateTime getLastUpdate() {

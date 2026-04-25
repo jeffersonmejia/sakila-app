@@ -2,9 +2,8 @@ package com.sakila.app.sakila.controller;
 
 import com.sakila.app.sakila.model.Film;
 import com.sakila.app.sakila.service.FilmService;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/films")
@@ -17,8 +16,15 @@ public class FilmController {
     }
 
     @GetMapping
-    public List<Film> getAll() {
-        return filmService.findAll();
+    public Page<Film> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size,
+            @RequestParam(required = false) String title
+    ) {
+        if (title != null && !title.isBlank()) {
+            return filmService.search(title, page, size);
+        }
+        return filmService.findAll(page, size);
     }
 
     @GetMapping("/{id}")

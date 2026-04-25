@@ -4,79 +4,139 @@ const d = document,
 	$inputId = d.getElementById('filmId'),
 	$inputTitle = d.getElementById('title'),
 	$inputLanguage = d.getElementById('languageId'),
+	$inputRating = d.getElementById('rating'),
+	$inputRentalDuration = d.getElementById('rentalDuration'),
+	$inputRentalRate = d.getElementById('rentalRate'),
+	$inputReplacementCost = d.getElementById('replacementCost'),
+	$btnSave = d.getElementById('btnSave'),
 	$btnPrev = d.getElementById('btnPrev'),
 	$btnNext = d.getElementById('btnNext')
 
 let currentPage = 0
 const pageSize = 8
+let totalPages = 0
+let languagesMap = {}
+
+async function loadLanguages() {
+	const res = await fetch('/languages')
+	const data = await res.json()
+
+	$inputLanguage.innerHTML = ''
+	const opt = d.createElement('option')
+	opt.value = ''
+	opt.textContent = 'Language'
+	$inputLanguage.appendChild(opt)
+
+	languagesMap = {}
+
+	data.forEach((l) => {
+		languagesMap[l.languageId] = l.name
+		const option = d.createElement('option')
+		option.value = l.languageId
+		option.textContent = l.name
+		$inputLanguage.appendChild(option)
+	})
+}
+
+function createCell(text, label) {
+	const td = d.createElement('td')
+	td.setAttribute('data-label', label)
+	td.textContent = text ?? ''
+	return td
+}
+
+function createActionsCell(f) {
+	const td = d.createElement('td')
+	td.setAttribute('data-label', 'Actions')
+
+	const btnEdit = d.createElement('button')
+	btnEdit.className = 'edit'
+	btnEdit.textContent = 'Edit'
+	btnEdit.dataset.film = JSON.stringify(f)
+
+	const btnDelete = d.createElement('button')
+	btnDelete.className = 'delete'
+	btnDelete.textContent = 'Delete'
+	btnDelete.dataset.id = f.filmId
+
+	td.appendChild(btnEdit)
+	td.appendChild(btnDelete)
+
+	return td
+}
 
 async function loadFilms() {
 	try {
 		const res = await fetch(`${API}?page=${currentPage}&size=${pageSize}`)
-		let data = await res.json()
+		const data = await res.json()
 
 		$table.innerHTML = ''
+		totalPages = data.totalPages ?? 1
 
-		if (Array.isArray(data)) {
-			data = data.slice(currentPage * pageSize, (currentPage + 1) * pageSize)
-		} else {
-			data = data.content
-		}
+		const list = data.content ?? []
 
-		data.forEach((f) => {
-			$table.innerHTML += `
-				<tr>
-					<td>${f.filmId}</td>
-					<td>${f.title}</td>
-					<td>
-						<button class="edit" data-id="${f.filmId}" data-title="${f.title}" data-lang="${f.languageId}">Edit</button>
-						<button class="delete" data-id="${f.filmId}">Delete</button>
-					</td>
-				</tr>
-			`
+		list.forEach((f) => {
+			const tr = d.createElement('tr')
+
+			tr.appendChild(createCell(f.filmId, 'No.'))
+			tr.appendChild(createCell(f.title, 'Title'))
+			tr.appendChild(createCell(languagesMap[f.languageId] || f.languageId, 'Language'))
+			tr.appendChild(createCell(f.rating || '', 'Rating'))
+			tr.appendChild(createActionsCell(f))
+
+			$table.appendChild(tr)
 		})
+
+		updatePaginationUI()
 	} catch (e) {
 		console.error(e)
 	}
+}
+
+function updatePaginationUI() {
+	$btnPrev.disabled = currentPage === 0
+	$btnNext.disabled = currentPage >= totalPages - 1
 }
 
 function selectFilm(f) {
 	$inputId.value = f.filmId
 	$inputTitle.value = f.title
 	$inputLanguage.value = f.languageId
+	$inputRating.value = f.rating || ''
+	$inputRentalDuration.value = f.rentalDuration
+	$inputRentalRate.value = f.rentalRate
+	$inputReplacementCost.value = f.replacementCost
+
+	$btnSave.textContent = 'Update'
+	$inputTitle.focus()
 }
 
-async function createFilm() {
-	await fetch(API, {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
-			title: $inputTitle.value,
-			languageId: Number($inputLanguage.value),
-			rentalDuration: 3,
-			rentalRate: 4.99,
-			replacementCost: 19.99,
-		}),
-	})
-	resetForm()
-	loadFilms()
-}
-
-async function updateFilm() {
+async function saveFilm() {
 	const id = $inputId.value
-	if (!id) return
 
-	await fetch(`${API}/${id}`, {
-		method: 'PUT',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
-			title: $inputTitle.value,
-			languageId: Number($inputLanguage.value),
-			rentalDuration: 3,
-			rentalRate: 4.99,
-			replacementCost: 19.99,
-		}),
-	})
+	const payload = {
+		title: $inputTitle.value,
+		languageId: Number($inputLanguage.value),
+		rating: $inputRating.value,
+		rentalDuration: Number($inputRentalDuration.value),
+		rentalRate: Number($inputRentalRate.value),
+		replacementCost: Number($inputReplacementCost.value),
+	}
+
+	if (id) {
+		await fetch(`${API}/${id}`, {
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(payload),
+		})
+	} else {
+		await fetch(API, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(payload),
+		})
+	}
+
 	resetForm()
 	loadFilms()
 }
@@ -90,25 +150,16 @@ function resetForm() {
 	$inputId.value = ''
 	$inputTitle.value = ''
 	$inputLanguage.value = ''
-}
-
-function handleLoad() {
-	loadFilms()
-}
-
-function handleCreate() {
-	createFilm()
-}
-
-function handleUpdate() {
-	updateFilm()
+	$inputRating.value = ''
+	$inputRentalDuration.value = ''
+	$inputRentalRate.value = ''
+	$inputReplacementCost.value = ''
+	$btnSave.textContent = 'Create'
 }
 
 function handleEdit($el) {
-	const id = $el.dataset.id
-	const title = $el.dataset.title
-	const lang = $el.dataset.lang
-	selectFilm({ filmId: id, title, languageId: lang })
+	const film = JSON.parse($el.dataset.film)
+	selectFilm(film)
 }
 
 function handleDelete($el) {
@@ -116,23 +167,26 @@ function handleDelete($el) {
 }
 
 function handlePrev() {
-	if (currentPage > 0) currentPage--
-	loadFilms()
+	if (currentPage > 0) {
+		currentPage--
+		loadFilms()
+	}
 }
 
 function handleNext() {
-	currentPage++
-	loadFilms()
+	if (currentPage < totalPages - 1) {
+		currentPage++
+		loadFilms()
+	}
 }
 
 function init() {
+	loadLanguages()
 	loadFilms()
 }
 
 d.addEventListener('click', (e) => {
-	if (e.target.id === 'btnLoad') return handleLoad()
-	if (e.target.id === 'btnCreate') return handleCreate()
-	if (e.target.id === 'btnUpdate') return handleUpdate()
+	if (e.target.id === 'btnSave') return saveFilm()
 	if (e.target.id === 'btnPrev') return handlePrev()
 	if (e.target.id === 'btnNext') return handleNext()
 	if (e.target.matches('.edit')) return handleEdit(e.target)
