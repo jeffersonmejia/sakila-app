@@ -26,7 +26,26 @@ services:
     volumes:
       - .:/app
       - maven_cache:/root/.m2
-    command: mvn spring-boot:run
+    command: >
+      sh -c "
+      apt-get update && apt-get install -y netcat mysql-client &&
+      echo START WAIT LOOP &&
+
+      until nc -z mysql 3306; do
+        echo WAITING TCP mysql:3306;
+        sleep 2;
+      done;
+      echo TCP OK;
+
+      until mysql -h mysql -u${DB_USER} -p${DB_PASSWORD} ${DB_NAME} -e 'SELECT 1' > /dev/null 2>&1; do
+        echo WAITING MYSQL READY;
+        sleep 3;
+      done;
+      echo MYSQL READY;
+
+      echo STARTING SPRING;
+      mvn spring-boot:run
+      "
     ports:
       - '8080:8080'
     env_file:

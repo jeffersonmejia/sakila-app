@@ -1,1 +1,23 @@
+# BUILD
+target/
+*.class
+*.jar
+
+# LOGS
+*.log
+
+# ENV DO NOT COMMIT SECRETS
 .env
+.env.*
+!.env.example
+
+# VSCODE
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# DOCKER LOCAL DATA
+mysql_data/
+maven_cache/
