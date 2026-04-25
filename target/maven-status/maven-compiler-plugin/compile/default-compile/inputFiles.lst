@@ -1,6 +1,0 @@
-/app/src/main/java/com/sakila/app/sakila/SakilaApplication.java
-/app/src/main/java/com/sakila/app/sakila/controller/FilmController.java
-/app/src/main/java/com/sakila/app/sakila/controller/HomeController.java
-/app/src/main/java/com/sakila/app/sakila/model/Film.java
-/app/src/main/java/com/sakila/app/sakila/repository/FilmRepository.java
-/app/src/main/java/com/sakila/app/sakila/service/FilmService.java
