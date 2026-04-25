@@ -53,8 +53,8 @@ do_commit() {
 
   git add .
   git commit -m "$commitText"
-  git pull origin dev
-  git push origin dev
+  git pull origin main
+  git push origin main
 
   [[ $? -eq 0 ]] \
     && echo -e "${C_FEAT}[success] commit completed!${C_RESET}" \
