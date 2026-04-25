@@ -39,7 +39,7 @@ services:
 
     command: >
       sh -c "
-      apt-get update && apt-get install -y netcat mysql-client &&
+      apt-get update && apt-get install -y netcat-openbsd mysql-client &&
       echo START WAIT LOOP &&
 
       until nc -z mysql 3306; do
