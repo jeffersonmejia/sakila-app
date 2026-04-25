@@ -55,7 +55,7 @@ services:
       echo MYSQL READY;
 
       echo STARTING SPRING;
-      mvn spring-boot:run
+      mvn spring-boot:run -Dspring-boot.run.addResources=true
       "
 
     ports:
