@@ -179,8 +179,9 @@ button.secondary {
 
 .pagination {
 	display: flex;
+	align-items: center;
 	justify-content: center;
-	gap: var(--space-sm);
+	gap: var(--space-md);
 	margin-top: var(--space-lg);
 }
 
@@ -202,6 +203,15 @@ button.secondary {
 
 .pagination button:active {
 	transform: scale(0.96);
+}
+
+#pageInfo {
+	font-size: 0.9rem;
+	color: var(--text-light);
+	background: var(--primary-soft);
+	padding: 0.4rem 0.8rem;
+	border-radius: var(--radius);
+	border: 0.0625rem solid var(--border);
 }
 
 @keyframes fadeIn {

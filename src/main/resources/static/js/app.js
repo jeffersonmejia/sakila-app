@@ -11,6 +11,7 @@ const d = document,
 	$btnSave = d.getElementById('btnSave'),
 	$btnPrev = d.getElementById('btnPrev'),
 	$btnNext = d.getElementById('btnNext'),
+	$pageInfo = d.getElementById('pageInfo'),
 	$search = d.getElementById('search'),
 	$btnSearch = d.getElementById('btnSearch')
 
@@ -127,6 +128,10 @@ async function loadFilms() {
 function updatePaginationUI() {
 	$btnPrev.disabled = currentPage === 0
 	$btnNext.disabled = currentPage >= totalPages - 1
+
+	if ($pageInfo) {
+		$pageInfo.textContent = `Page ${currentPage + 1} of ${totalPages}`
+	}
 }
 
 function selectFilm(f) {
