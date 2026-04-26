@@ -68,6 +68,38 @@ h1 {
 	gap: var(--space-md);
 }
 
+.card.form:nth-of-type(2) {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	align-items: center;
+	gap: var(--space-sm);
+	max-width: 40rem;
+	margin: 0 auto var(--space-lg);
+	padding: var(--space-sm) var(--space-md);
+}
+
+.card.form:nth-of-type(2) input {
+	grid-column: span 3;
+	padding: 0.65rem;
+	border: 0.0625rem solid var(--border);
+	border-radius: var(--radius);
+	font-size: 0.9rem;
+}
+
+.card.form:nth-of-type(2) button {
+	grid-column: span 1;
+	padding: 0.6rem 1.2rem;
+	background: var(--primary);
+	color: white;
+	border-radius: var(--radius);
+	border: none;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.3rem;
+}
+
 .field {
 	display: flex;
 	flex-direction: column;
@@ -89,6 +121,8 @@ h1 {
 	border: none;
 	outline: none;
 	flex: 1;
+	width: 100%;
+	min-width: 0;
 	padding: 0.65rem 0.4rem;
 	background: transparent;
 }
@@ -98,8 +132,8 @@ h1 {
 	color: var(--text-light);
 }
 
-.form input,
-.form select {
+.form > input,
+.form > select {
 	padding: 0.75rem;
 	border: 0.0625rem solid var(--border);
 	border-radius: var(--radius);
@@ -111,13 +145,13 @@ h1 {
 		background 0.2s ease;
 }
 
-.form input:hover,
-.form select:hover {
+.form > input:hover,
+.form > select:hover {
 	background: var(--primary-soft);
 }
 
-.form input:focus,
-.form select:focus {
+.form > input:focus,
+.form > select:focus {
 	outline: none;
 	border-color: var(--primary);
 }
@@ -162,36 +196,6 @@ h1 {
 
 button .material-symbols-outlined {
 	font-size: 1rem;
-}
-
-.card.form:nth-of-type(2) {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: var(--space-sm);
-	max-width: 30rem;
-	margin: 0 auto var(--space-lg);
-	padding: var(--space-sm) var(--space-md);
-}
-
-.card.form:nth-of-type(2) input {
-	flex: 1;
-	padding: 0.65rem;
-	border: 0.0625rem solid var(--border);
-	border-radius: var(--radius);
-	font-size: 0.9rem;
-}
-
-.card.form:nth-of-type(2) button {
-	padding: 0.6rem 1.2rem;
-	background: var(--primary);
-	color: white;
-	border-radius: var(--radius);
-	border: none;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	gap: 0.3rem;
 }
 
 .card.table-container {
@@ -338,6 +342,15 @@ button.secondary {
 	}
 
 	.form button {
+		grid-column: span 1;
+	}
+
+	.card.form:nth-of-type(2) {
+		grid-template-columns: 1fr;
+	}
+
+	.card.form:nth-of-type(2) input,
+	.card.form:nth-of-type(2) button {
 		grid-column: span 1;
 	}
 
