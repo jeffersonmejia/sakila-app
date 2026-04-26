@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FilmRepository extends JpaRepository<Film, Integer> {
 
-    Page<Film> findAll(Pageable pageable);
+    Page<Film> findAllByOrderByLastUpdateDesc(Pageable pageable);
 
-    Page<Film> findByTitleContainingIgnoreCase(String title, Pageable pageable);
+    Page<Film> findByTitleContainingIgnoreCaseOrderByLastUpdateDesc(String title, Pageable pageable);
 }

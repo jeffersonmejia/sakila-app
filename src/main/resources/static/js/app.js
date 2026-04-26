@@ -35,6 +35,15 @@ const ratingMap = {
 	NC_17: 'Adults Only',
 }
 
+function formatDate(dateStr) {
+	if (!dateStr) return ''
+	const d = new Date(dateStr)
+	const day = String(d.getDate()).padStart(2, '0')
+	const month = String(d.getMonth() + 1).padStart(2, '0')
+	const year = d.getFullYear()
+	return `${day}/${month}/${year}`
+}
+
 function clearErrors() {
 	;[
 		$inputTitle,
@@ -78,26 +87,35 @@ function validateForm() {
 		valid = false
 	}
 
+	const rd = Number($inputRentalDuration.value)
+
 	if (!$inputRentalDuration.value) {
 		setError($inputRentalDuration, $errorRentalDuration, 'Required')
 		valid = false
-	} else if (Number($inputRentalDuration.value) <= 0) {
+	} else if (rd <= 0) {
 		setError($inputRentalDuration, $errorRentalDuration, '> 0')
 		valid = false
+	} else if (rd > 365) {
+		setError($inputRentalDuration, $errorRentalDuration, 'Max 365')
+		valid = false
 	}
+
+	const rr = Number($inputRentalRate.value)
 
 	if (!$inputRentalRate.value) {
 		setError($inputRentalRate, $errorRentalRate, 'Required')
 		valid = false
-	} else if (Number($inputRentalRate.value) <= 0) {
+	} else if (rr <= 0) {
 		setError($inputRentalRate, $errorRentalRate, '> 0')
 		valid = false
 	}
 
+	const rc = Number($inputReplacementCost.value)
+
 	if (!$inputReplacementCost.value) {
 		setError($inputReplacementCost, $errorReplacementCost, 'Required')
 		valid = false
-	} else if (Number($inputReplacementCost.value) <= 0) {
+	} else if (rc <= 0) {
 		setError($inputReplacementCost, $errorReplacementCost, '> 0')
 		valid = false
 	}
@@ -108,6 +126,7 @@ function validateForm() {
 async function loadLanguages() {
 	const res = await fetch('/languages')
 	const data = await res.json()
+
 	const list = Array.isArray(data) ? data : (data.content ?? [])
 
 	$inputLanguage.innerHTML = ''
@@ -189,24 +208,25 @@ async function loadFilms() {
 
 		const list = data.content ?? []
 
-		list.forEach((f) => {
+		list.forEach((f, index) => {
 			const tr = d.createElement('tr')
 
-			tr.appendChild(createCell(f.filmId, 'No.', null))
+			const rowNumber = currentPage * pageSize + index + 1
+
+			tr.appendChild(createCell(rowNumber, 'No.', null))
 			tr.appendChild(createCell(f.title, 'Title', 'movie'))
 			tr.appendChild(
 				createCell(languagesMap[f.languageId] || f.languageId, 'Language', 'language'),
 			)
 			tr.appendChild(createCell(ratingMap[f.rating] || f.rating || '', 'Rating', 'star'))
+			tr.appendChild(createCell(formatDate(f.lastUpdate), 'Last Update', 'event'))
 			tr.appendChild(createActionsCell(f))
 
 			$table.appendChild(tr)
 		})
 
 		updatePaginationUI()
-	} catch (e) {
-		console.error(e)
-	}
+	} catch (e) {}
 }
 
 function updatePaginationUI() {
@@ -243,19 +263,25 @@ async function saveFilm() {
 		replacementCost: Number($inputReplacementCost.value),
 	}
 
-	if (id) {
-		await fetch(`${API}/${id}`, {
-			method: 'PUT',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(payload),
-		})
-	} else {
-		await fetch(API, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(payload),
-		})
-	}
+	try {
+		let res
+
+		if (id) {
+			res = await fetch(`${API}/${id}`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload),
+			})
+		} else {
+			res = await fetch(API, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload),
+			})
+		}
+
+		await res.text()
+	} catch (e) {}
 
 	resetForm()
 	loadFilms()
@@ -322,12 +348,16 @@ d.addEventListener('input', (e) => {
 })
 
 d.addEventListener('click', (e) => {
+	const $editBtn = e.target.closest('.edit')
+	const $deleteBtn = e.target.closest('.delete')
+
 	if (e.target.id === 'btnSave') return saveFilm()
 	if (e.target.id === 'btnPrev') return handlePrev()
 	if (e.target.id === 'btnNext') return handleNext()
 	if (e.target.id === 'btnSearch') return handleSearch()
-	if (e.target.matches('.edit')) return handleEdit(e.target)
-	if (e.target.matches('.delete')) return handleDelete(e.target)
+
+	if ($editBtn) return handleEdit($editBtn)
+	if ($deleteBtn) return handleDelete($deleteBtn)
 })
 
 d.addEventListener('DOMContentLoaded', init)

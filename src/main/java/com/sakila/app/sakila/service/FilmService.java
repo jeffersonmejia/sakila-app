@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -32,11 +33,11 @@ public class FilmService {
     }
 
     public Page<Film> findAll(int page, int size) {
-        return filmRepository.findAll(buildPageable(page, size));
+        return filmRepository.findAllByOrderByLastUpdateDesc(buildPageable(page, size));
     }
 
     public Page<Film> search(String title, int page, int size) {
-        return filmRepository.findByTitleContainingIgnoreCase(
+        return filmRepository.findByTitleContainingIgnoreCaseOrderByLastUpdateDesc(
                 title,
                 buildPageable(page, size)
         );
@@ -47,6 +48,7 @@ public class FilmService {
     }
 
     public Film save(Film film) {
+        film.setLastUpdate(LocalDateTime.now());
         return filmRepository.save(film);
     }
 
@@ -64,6 +66,7 @@ public class FilmService {
         existing.setReplacementCost(film.getReplacementCost());
         existing.setRating(film.getRating());
         existing.setSpecialFeatures(film.getSpecialFeatures());
+        existing.setLastUpdate(LocalDateTime.now());
 
         return filmRepository.save(existing);
     }

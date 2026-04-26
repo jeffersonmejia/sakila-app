@@ -332,7 +332,7 @@ button.secondary {
 	}
 }
 
-@media (max-width: 48rem) {
+@media (max-width: 768px) {
 	h1 {
 		font-size: 1.8rem;
 	}

@@ -73,6 +73,12 @@ public class Film {
     @Column(name = "last_update")
     private LocalDateTime lastUpdate;
 
+    @PrePersist
+    @PreUpdate
+    public void setLastUpdate() {
+        this.lastUpdate = LocalDateTime.now();
+    }
+
     public enum Rating {
         G, PG, PG_13, R, NC_17
     }
