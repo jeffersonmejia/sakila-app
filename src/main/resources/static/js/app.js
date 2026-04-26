@@ -219,6 +219,9 @@ async function loadFilms() {
 				createCell(languagesMap[f.languageId] || f.languageId, 'Language', 'language'),
 			)
 			tr.appendChild(createCell(ratingMap[f.rating] || f.rating || '', 'Rating', 'star'))
+			tr.appendChild(createCell(f.rentalDuration, 'Rental Duration', 'schedule'))
+			tr.appendChild(createCell(f.rentalRate, 'Rental Rate', 'attach_money'))
+			tr.appendChild(createCell(f.replacementCost, 'Replacement Cost', 'payments'))
 			tr.appendChild(createCell(formatDate(f.lastUpdate), 'Last Update', 'event'))
 			tr.appendChild(createActionsCell(f))
 
