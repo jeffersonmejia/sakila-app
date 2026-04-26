@@ -15,6 +15,13 @@ const d = document,
 	$search = d.getElementById('search'),
 	$btnSearch = d.getElementById('btnSearch')
 
+const $errorTitle = d.getElementById('error-title')
+const $errorLanguage = d.getElementById('error-languageId')
+const $errorRating = d.getElementById('error-rating')
+const $errorRentalDuration = d.getElementById('error-rentalDuration')
+const $errorRentalRate = d.getElementById('error-rentalRate')
+const $errorReplacementCost = d.getElementById('error-replacementCost')
+
 let currentPage = 0
 const pageSize = 8
 let totalPages = 0
@@ -26,6 +33,76 @@ const ratingMap = {
 	PG_13: 'Parents Strongly Cautioned',
 	R: 'Restricted',
 	NC_17: 'Adults Only',
+}
+
+function clearErrors() {
+	;[
+		$inputTitle,
+		$inputLanguage,
+		$inputRating,
+		$inputRentalDuration,
+		$inputRentalRate,
+		$inputReplacementCost,
+	].forEach((el) => el.classList.remove('error'))
+	;[
+		$errorTitle,
+		$errorLanguage,
+		$errorRating,
+		$errorRentalDuration,
+		$errorRentalRate,
+		$errorReplacementCost,
+	].forEach((el) => (el.textContent = ''))
+}
+
+function setError(input, errorEl, message) {
+	input.classList.add('error')
+	errorEl.textContent = message
+}
+
+function validateForm() {
+	clearErrors()
+	let valid = true
+
+	if (!$inputTitle.value.trim()) {
+		setError($inputTitle, $errorTitle, 'Required')
+		valid = false
+	}
+
+	if (!$inputLanguage.value) {
+		setError($inputLanguage, $errorLanguage, 'Required')
+		valid = false
+	}
+
+	if (!$inputRating.value) {
+		setError($inputRating, $errorRating, 'Required')
+		valid = false
+	}
+
+	if (!$inputRentalDuration.value) {
+		setError($inputRentalDuration, $errorRentalDuration, 'Required')
+		valid = false
+	} else if (Number($inputRentalDuration.value) <= 0) {
+		setError($inputRentalDuration, $errorRentalDuration, '> 0')
+		valid = false
+	}
+
+	if (!$inputRentalRate.value) {
+		setError($inputRentalRate, $errorRentalRate, 'Required')
+		valid = false
+	} else if (Number($inputRentalRate.value) <= 0) {
+		setError($inputRentalRate, $errorRentalRate, '> 0')
+		valid = false
+	}
+
+	if (!$inputReplacementCost.value) {
+		setError($inputReplacementCost, $errorReplacementCost, 'Required')
+		valid = false
+	} else if (Number($inputReplacementCost.value) <= 0) {
+		setError($inputReplacementCost, $errorReplacementCost, '> 0')
+		valid = false
+	}
+
+	return valid
 }
 
 async function loadLanguages() {
@@ -61,16 +138,21 @@ function loadRatings() {
 	Object.entries(ratingMap).forEach(([key, desc]) => {
 		const option = d.createElement('option')
 		option.value = key
-		const label = key.replace('_', '-')
-		option.textContent = `${label} (${desc})`
+		option.textContent = `${key.replace('_', '-')} (${desc})`
 		$inputRating.appendChild(option)
 	})
 }
 
-function createCell(text, label) {
+function createCell(text, label, icon) {
 	const td = d.createElement('td')
 	td.setAttribute('data-label', label)
-	td.textContent = text ?? ''
+
+	if (icon) {
+		td.innerHTML = `<span class="material-symbols-outlined">${icon}</span><span>${text ?? ''}</span>`
+	} else {
+		td.textContent = text ?? ''
+	}
+
 	return td
 }
 
@@ -80,13 +162,13 @@ function createActionsCell(f) {
 
 	const btnEdit = d.createElement('button')
 	btnEdit.className = 'edit'
-	btnEdit.textContent = 'Edit'
 	btnEdit.dataset.film = JSON.stringify(f)
+	btnEdit.innerHTML = `<span class="material-symbols-outlined">edit</span>`
 
 	const btnDelete = d.createElement('button')
 	btnDelete.className = 'delete'
-	btnDelete.textContent = 'Delete'
 	btnDelete.dataset.id = f.filmId
+	btnDelete.innerHTML = `<span class="material-symbols-outlined">delete</span>`
 
 	td.appendChild(btnEdit)
 	td.appendChild(btnDelete)
@@ -110,10 +192,12 @@ async function loadFilms() {
 		list.forEach((f) => {
 			const tr = d.createElement('tr')
 
-			tr.appendChild(createCell(f.filmId, 'No.'))
-			tr.appendChild(createCell(f.title, 'Title'))
-			tr.appendChild(createCell(languagesMap[f.languageId] || f.languageId, 'Language'))
-			tr.appendChild(createCell(ratingMap[f.rating] || f.rating || '', 'Rating'))
+			tr.appendChild(createCell(f.filmId, 'No.', null))
+			tr.appendChild(createCell(f.title, 'Title', 'movie'))
+			tr.appendChild(
+				createCell(languagesMap[f.languageId] || f.languageId, 'Language', 'language'),
+			)
+			tr.appendChild(createCell(ratingMap[f.rating] || f.rating || '', 'Rating', 'star'))
 			tr.appendChild(createActionsCell(f))
 
 			$table.appendChild(tr)
@@ -128,13 +212,12 @@ async function loadFilms() {
 function updatePaginationUI() {
 	$btnPrev.disabled = currentPage === 0
 	$btnNext.disabled = currentPage >= totalPages - 1
-
-	if ($pageInfo) {
-		$pageInfo.textContent = `Page ${currentPage + 1} of ${totalPages}`
-	}
+	$pageInfo.textContent = `Page ${currentPage + 1} of ${totalPages}`
 }
 
 function selectFilm(f) {
+	clearErrors()
+
 	$inputId.value = f.filmId
 	$inputTitle.value = f.title
 	$inputLanguage.value = f.languageId
@@ -144,14 +227,15 @@ function selectFilm(f) {
 	$inputReplacementCost.value = f.replacementCost
 
 	$btnSave.textContent = 'Update'
-	$inputTitle.focus()
 }
 
 async function saveFilm() {
+	if (!validateForm()) return
+
 	const id = $inputId.value
 
 	const payload = {
-		title: $inputTitle.value,
+		title: $inputTitle.value.trim(),
 		languageId: Number($inputLanguage.value),
 		rating: $inputRating.value,
 		rentalDuration: Number($inputRentalDuration.value),
@@ -183,6 +267,8 @@ async function deleteFilm(id) {
 }
 
 function resetForm() {
+	clearErrors()
+
 	$inputId.value = ''
 	$inputTitle.value = ''
 	$inputLanguage.value = ''
@@ -226,6 +312,14 @@ function init() {
 	loadRatings()
 	loadFilms()
 }
+
+d.addEventListener('input', (e) => {
+	if (e.target.matches('input, select')) {
+		e.target.classList.remove('error')
+		const errorEl = d.getElementById(`error-${e.target.id}`)
+		if (errorEl) errorEl.textContent = ''
+	}
+})
 
 d.addEventListener('click', (e) => {
 	if (e.target.id === 'btnSave') return saveFilm()

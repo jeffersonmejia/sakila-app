@@ -20,6 +20,8 @@
 	--space-xs: 0.5rem;
 
 	--font: system-ui, Arial, sans-serif;
+
+	--error: #dc2626;
 }
 
 *,
@@ -66,14 +68,47 @@ h1 {
 	gap: var(--space-md);
 }
 
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.input-icon {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	border: 0.0625rem solid var(--border);
+	border-radius: var(--radius);
+	padding: 0 0.5rem;
+	background: white;
+}
+
+.input-icon input,
+.input-icon select {
+	border: none;
+	outline: none;
+	flex: 1;
+	padding: 0.65rem 0.4rem;
+	background: transparent;
+}
+
+.input-icon .material-symbols-outlined {
+	font-size: 1.1rem;
+	color: var(--text-light);
+}
+
 .form input,
 .form select {
-	padding: 0.75rem 0.75rem;
+	padding: 0.75rem;
 	border: 0.0625rem solid var(--border);
 	border-radius: var(--radius);
 	background: white;
 	font-size: 0.9rem;
 	width: 100%;
+	transition:
+		border 0.2s ease,
+		background 0.2s ease;
 }
 
 .form input:hover,
@@ -87,6 +122,18 @@ h1 {
 	border-color: var(--primary);
 }
 
+.form input.error,
+.form select.error {
+	border-color: var(--error);
+	background: #fef2f2;
+}
+
+.error-msg {
+	color: var(--error);
+	font-size: 0.75rem;
+	min-height: 0.9rem;
+}
+
 .form button {
 	grid-column: span 3;
 	justify-self: center;
@@ -96,7 +143,9 @@ h1 {
 	border-radius: var(--radius);
 	border: none;
 	cursor: pointer;
-	width: auto;
+	display: flex;
+	align-items: center;
+	gap: 0.3rem;
 	transition:
 		transform 0.15s ease,
 		background 0.2s ease;
@@ -109,6 +158,40 @@ h1 {
 
 .form button:active {
 	transform: scale(0.97);
+}
+
+button .material-symbols-outlined {
+	font-size: 1rem;
+}
+
+.card.form:nth-of-type(2) {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-sm);
+	max-width: 30rem;
+	margin: 0 auto var(--space-lg);
+	padding: var(--space-sm) var(--space-md);
+}
+
+.card.form:nth-of-type(2) input {
+	flex: 1;
+	padding: 0.65rem;
+	border: 0.0625rem solid var(--border);
+	border-radius: var(--radius);
+	font-size: 0.9rem;
+}
+
+.card.form:nth-of-type(2) button {
+	padding: 0.6rem 1.2rem;
+	background: var(--primary);
+	color: white;
+	border-radius: var(--radius);
+	border: none;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.3rem;
 }
 
 .card.table-container {
@@ -151,26 +234,46 @@ td:nth-child(2) {
 	font-weight: 500;
 }
 
+td .material-symbols-outlined {
+	font-size: 1.25rem;
+	color: var(--text-light);
+	vertical-align: middle;
+	margin-right: 0.4rem;
+}
+
+td span:last-child {
+	vertical-align: middle;
+}
+
 button {
 	background: none;
 	border: none;
 	color: var(--primary);
 	font-size: 0.85rem;
 	cursor: pointer;
-	padding: 0.3rem 0.4rem;
+	padding: 0.3rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 0.3rem;
 	transition:
-		background 0.2s ease,
-		transform 0.15s ease;
+		transform 0.15s ease,
+		background 0.2s ease;
+}
+
+button.edit .material-symbols-outlined {
+	color: var(--primary);
+	font-size: 1.35rem;
+}
+
+button.delete .material-symbols-outlined {
+	color: var(--primary);
+	font-size: 1.35rem;
 }
 
 button:hover {
 	background: var(--primary-soft);
-	border-radius: 0.25rem;
-	transform: scale(1.05);
-}
-
-button:active {
-	transform: scale(0.95);
+	transform: scale(1.1);
 }
 
 button.secondary {
@@ -191,18 +294,9 @@ button.secondary {
 	padding: 0.55rem 1rem;
 	border-radius: var(--radius);
 	font-size: 0.9rem;
-	transition:
-		background 0.2s ease,
-		transform 0.15s ease;
-}
-
-.pagination button:hover {
-	background: var(--primary-soft);
-	transform: translateY(-1px);
-}
-
-.pagination button:active {
-	transform: scale(0.96);
+	display: flex;
+	align-items: center;
+	gap: 0.3rem;
 }
 
 #pageInfo {
