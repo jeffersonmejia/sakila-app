@@ -10,7 +10,9 @@ const d = document,
 	$inputReplacementCost = d.getElementById('replacementCost'),
 	$btnSave = d.getElementById('btnSave'),
 	$btnPrev = d.getElementById('btnPrev'),
-	$btnNext = d.getElementById('btnNext')
+	$btnNext = d.getElementById('btnNext'),
+	$search = d.getElementById('search'),
+	$btnSearch = d.getElementById('btnSearch')
 
 let currentPage = 0
 const pageSize = 8
@@ -21,6 +23,8 @@ async function loadLanguages() {
 	const res = await fetch('/languages')
 	const data = await res.json()
 
+	const list = Array.isArray(data) ? data : (data.content ?? [])
+
 	$inputLanguage.innerHTML = ''
 	const opt = d.createElement('option')
 	opt.value = ''
@@ -29,7 +33,7 @@ async function loadLanguages() {
 
 	languagesMap = {}
 
-	data.forEach((l) => {
+	list.forEach((l) => {
 		languagesMap[l.languageId] = l.name
 		const option = d.createElement('option')
 		option.value = l.languageId
@@ -67,7 +71,10 @@ function createActionsCell(f) {
 
 async function loadFilms() {
 	try {
-		const res = await fetch(`${API}?page=${currentPage}&size=${pageSize}`)
+		const query =
+			$search && $search.value ? `&title=${encodeURIComponent($search.value)}` : ''
+
+		const res = await fetch(`${API}?page=${currentPage}&size=${pageSize}${query}`)
 		const data = await res.json()
 
 		$table.innerHTML = ''
@@ -180,6 +187,11 @@ function handleNext() {
 	}
 }
 
+function handleSearch() {
+	currentPage = 0
+	loadFilms()
+}
+
 function init() {
 	loadLanguages()
 	loadFilms()
@@ -189,6 +201,7 @@ d.addEventListener('click', (e) => {
 	if (e.target.id === 'btnSave') return saveFilm()
 	if (e.target.id === 'btnPrev') return handlePrev()
 	if (e.target.id === 'btnNext') return handleNext()
+	if (e.target.id === 'btnSearch') return handleSearch()
 	if (e.target.matches('.edit')) return handleEdit(e.target)
 	if (e.target.matches('.delete')) return handleDelete(e.target)
 })
