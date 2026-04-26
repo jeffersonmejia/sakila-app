@@ -19,10 +19,17 @@ const pageSize = 8
 let totalPages = 0
 let languagesMap = {}
 
+const ratingMap = {
+	G: 'General Audience',
+	PG: 'Parental Guidance',
+	PG_13: 'Parents Strongly Cautioned',
+	R: 'Restricted',
+	NC_17: 'Adults Only',
+}
+
 async function loadLanguages() {
 	const res = await fetch('/languages')
 	const data = await res.json()
-
 	const list = Array.isArray(data) ? data : (data.content ?? [])
 
 	$inputLanguage.innerHTML = ''
@@ -39,6 +46,23 @@ async function loadLanguages() {
 		option.value = l.languageId
 		option.textContent = l.name
 		$inputLanguage.appendChild(option)
+	})
+}
+
+function loadRatings() {
+	$inputRating.innerHTML = ''
+
+	const opt = d.createElement('option')
+	opt.value = ''
+	opt.textContent = 'Rating'
+	$inputRating.appendChild(opt)
+
+	Object.entries(ratingMap).forEach(([key, desc]) => {
+		const option = d.createElement('option')
+		option.value = key
+		const label = key.replace('_', '-')
+		option.textContent = `${label} (${desc})`
+		$inputRating.appendChild(option)
 	})
 }
 
@@ -88,7 +112,7 @@ async function loadFilms() {
 			tr.appendChild(createCell(f.filmId, 'No.'))
 			tr.appendChild(createCell(f.title, 'Title'))
 			tr.appendChild(createCell(languagesMap[f.languageId] || f.languageId, 'Language'))
-			tr.appendChild(createCell(f.rating || '', 'Rating'))
+			tr.appendChild(createCell(ratingMap[f.rating] || f.rating || '', 'Rating'))
 			tr.appendChild(createActionsCell(f))
 
 			$table.appendChild(tr)
@@ -194,6 +218,7 @@ function handleSearch() {
 
 function init() {
 	loadLanguages()
+	loadRatings()
 	loadFilms()
 }
 
